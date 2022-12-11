@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINE</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link rel="stylesheet" href="./css/chat.css">
+</head>
+<body>
+
+<!-- ここからコンテンツ表示画面 -->
+
+<div id="wrapper">
+    <div class="chat-header">
+        <h1 class="title">LINE</h1>
+        <div class="functions">
+            <div class="pageUp">
+                <img src="./imgs/up.png" alt="">
+            </div>
+            <div class="pageDown">
+                <img src="./imgs/down.png" alt="">
+            </div>
+            <!-- <div class="allClear">
+                <img src="./imgs/allBin.png" alt="">
+            </div> -->
+        </div>
+    </div>
+    
+    <div id="chat-area">
+        <ul class="messages" id="output">
+            <li class="left_box">
+                <div class ="left_icon"><img src ="./imgs/boy.jpeg" alt="YOU"></div>
+                <div class="left_msg">
+                    <p class="sender_name">つかいかた</p>
+                    <p class="left_balloon">LINE風Chatアプリの使い方を説明します。</p>
+                </div>
+                <p class="clear_balloon"></p>
+            </li>
+            <li class="left_box">
+                <div class ="left_icon"><img src ="./imgs/boy.jpeg" alt="YOU"></div>
+                <div class="left_msg">
+                    <p class="sender_name">つかいかた</p>
+                    <p class="left_balloon">1. 画面左下のアイコンから一つを選択してください（必須）。</p>
+                </div>
+                <p class="clear_balloon"></p>
+            </li>
+            <li class="left_box">
+                <div class ="left_icon"><img src ="./imgs/boy.jpeg" alt="YOU"></div>
+                <div class="left_msg">
+                    <p class="sender_name">つかいかた</p>
+                    <p class="left_balloon">2. アイコン下のテキストボックスにユーザー名を入力してください。</p>
+                </div>
+                <p class="clear_balloon"></p>
+            </li>
+            <li class="left_box">
+                <div class ="left_icon"><img src ="./imgs/boy.jpeg" alt="YOU"></div>
+                <div class="left_msg">
+                    <p class="sender_name">つかいかた</p>
+                    <p class="left_balloon">3. 右側のテキストボックスにメッセージを入力し、右のボタンを押すかEnterをクリックすれば送信完了です。</p>
+                </div>
+                <p class="clear_balloon"></p>
+            </li>
+            <li class="left_box">
+                <div class ="left_icon"><img src ="./imgs/boy.jpeg" alt="YOU"></div>
+                <div class="left_msg">
+                    <p class="sender_name">つかいかた</p>
+                    <p class="left_balloon">4. メッセージ横のゴミ箱マークをクリックすると送信済みメッセージを削除できます。</p>
+                </div>
+                <p class="clear_balloon"></p>
+            </li>
+        </ul>
+    </div>
+
+    <div id="message-area">
+        <div id="icon-area">
+            <ul id="imgList">
+                <li class="imgs" data-img="0" id="neko"><img src="./imgs/buke.png" alt="猫"></li>
+                <li class="imgs" data-img="1" id="inu"><img src="./imgs/caram.png" alt="犬"></li>
+                <li class="imgs" data-img="2" id="tori"><img src="./imgs/tuku.jpg" alt="鳥"></li>
+            </ul>
+            <div class="message-area-uname">
+                <input type="text" id="uname" placeholder="ユーザー名">
+            </div>
+        </div>
+        <div class="message-area-text">
+            <textarea name="" id="text" cols="43" rows="3" placeholder="メッセージを入力"></textarea>
+            <input type="image" src="./imgs/ei-send.png" id="send"></button>
+        </div>
+    </div>
+
+</div>
+<!-- ここまでコンテンツ表示画面 -->
+
+
+<!--** 以下Firebase **-->
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
+    // TODO: Add SDKs for Firebase products that you want to use　以下に使いたいサービスを貼り付け
+    // https://firebase.google.com/docs/web/setup#available-libraries
+    import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved }
+        from "https://cdnjs.cloudflare.com/ajax/libs/firebase/9.14.0/firebase-database.js"; //min.js（圧縮版）だとエラーが出たのでフル版に変更。
+    
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBBw0GXrud5HGhYEwEXyoqy6_42nf7DX1E",
+        authDomain: "fir-lesson-da350.firebaseapp.com",
+        projectId: "fir-lesson-da350",
+        storageBucket: "fir-lesson-da350.appspot.com",
+        messagingSenderId: "405594307404",
+        appId: "1:405594307404:web:4e201575e8309a6c1b6de9"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    
+    const db = getDatabase(app); // RealtimeDBに接続
+    const dbRef = ref(db, "chat"); // RealtimeDB内の"chat"を使う
+    
+    // 上までscrollする関数
+    function scrollToTop(){
+        $("#chat-area").scrollTop($("#chat-area").get(0));
+    };
+
+    // 下までscrollする関数 ※ネットで見たscrollTop = scrollHeightみたいなやつは上手くいかなかった
+    function scrollToEnd(){
+        $("#chat-area").scrollTop($("#chat-area").get(0).scrollHeight);
+    };
+
+    // 上までスクロールするボタン処理
+    $(".pageUp").on("click", function(){
+        scrollToTop();
+    })
+    // 下までスクロールするボタン処理
+    $(".pageDown").on("click", function(){
+        scrollToEnd();
+    })
+
+    // アイコン選択処理 
+    let d = 3;
+    const img = ["buke.png", "caram.png", "tuku.jpg"];
+    $(".imgs").on("click", function(){
+        d = $(this).attr("data-img");
+        // 最後に選んだアイコンだけポップアップするようにする。もっと上手い書き方がある気もするが。。。
+        if(d == 0){
+            $("#neko").addClass("imgsClicked");
+            $("#inu").removeClass("imgsClicked");
+            $("#tori").removeClass("imgsClicked");
+        }else if (d == 1){
+            $("#neko").removeClass("imgsClicked");
+            $("#inu").addClass("imgsClicked");
+            $("#tori").removeClass("imgsClicked");
+        }else if (d == 2){
+            $("#neko").removeClass("imgsClicked");
+            $("#inu").removeClass("imgsClicked");
+            $("#tori").addClass("imgsClicked");
+        };
+    });
+    
+    // データ送信機能の実装 ( push , set )
+    $("#send").on("click", function(){
+        const msg = {
+            uname: $("#uname").val(),
+            text: $("#text").val(),
+            icon: d
+        };
+        if(d == 3){
+            alert("アイコンを選んでね！");
+        }else{
+            const newPostRef = push(dbRef); // pushできる状態にする キーを発行する
+            set(newPostRef, msg); // DBに値を送信　発行したキーに作成したオブジェクトをセット
+            $("#text").val(""); //クリックしたらTextの中身を空にする
+            scrollToEnd();
+        };
+    });
+
+    $("#text").on("keydown", function(e){
+        if (e.keyCode == 13){ //keycode13 = enterが押されたら、以下起動 ※英語だとe.key(CodeじゃなくてKey自体)で指定するという場合もあるが、日本語は通常のEnterと変換確定のEnterがあるので
+            const msg = {
+                uname: $("#uname").val(),
+                text: $("#text").val(),
+                icon: d
+            };
+            if(d == 3){
+                alert("アイコンを選んでね！");
+            }else{
+                const newPostRef = push(dbRef); // pushできる状態にする キーを発行する
+                set(newPostRef, msg); // DBに値を送信　発行したキーに作成したオブジェクトをセット
+                $("#text").val(""); //クリックしたらTextの中身を空にする
+                scrollToEnd();
+            };
+        };
+    });
+
+    // onChildAddedの働きメモ
+    // ①ページを読み込んだ時にdfRefの中に入っているデータを全部引っこ抜いてきて、データ一つずつ関数を実行してくれる（msgに入れる）
+    // ②送信ボタンを押した時に、その時のデータに対して同じく関数を実行してくれる
+    onChildAdded(dbRef, function(data){
+        const msg = data.val();
+        const key = data.key;
+        let icon = `imgs/${img[msg.icon]}`
+        // console.log(msg.icon);
+        // console.log(icon);
+
+        let h =""; // if文を書く前に変数を宣言。if文でreturnは機能しないようだ。return使うのは関数。
+        if (msg.uname == $("#uname").val()){
+            h = `<li class="right_box">
+                    <div class="right_msg">
+                        <p class="sender_name_me">${msg.uname}</p>    
+                        <p class="right_balloon">${msg.text}</p>
+                    </div>
+                    <p id="${key}" class="delete"><img src ="./imgs/bin.jpeg" class="bin" alt="X"></p>
+                    <div class ="right_icon"><img src ="${icon}" alt="ME"></div>
+                    <p class="clear_balloon"></p>
+                </li>`
+        }else {
+            h = `<li class="left_box">
+                    <div class ="left_icon"><img src ="${icon}" alt="YOU"></div>
+                    <div class="left_msg">
+                        <p class="sender_name">${msg.uname}</p>
+                        <p class="left_balloon">${msg.text}</p>
+                    </div>
+                    <p id="${key}" class="delete"><img src ="./imgs/bin.jpeg" class="bin" alt="X"></p>
+                    <p class="clear_balloon"></p>
+                </li>`
+        };
+
+        $("#output").append(h);
+        scrollToEnd();
+
+    });
+
+    // メッセージの削除 
+    $(document).on("click", ".delete", function(){ //$(".delete"). ではなぜ機能しない？
+        let value = $(this).attr("id");
+        // console.log(value);
+        const dbRefDel = ref(db, `chat/${value}`)
+        remove(dbRefDel);
+        // dbRef.child(value).remove(); ではなぜ機能しないのか？ 'child'がundefinedというエラーだったが。。。
+        $(this).parent().remove();
+    })
+
+</script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
